@@ -40,6 +40,10 @@ costes['coste_componente_unitario'] = costes['coste_componente_unitario'].str.re
 costes.isnull().sum()
 costes.info()
 
+
+######### VOY POR AQUÍ
+
+
 # Outliers en 'componente'
 pattern = re.compile(r'^[\p{L}]+[0-9]{2,3}$')
 invalid_rows = costes[~costes['componente'].apply(lambda x: bool(pattern.fullmatch(x)))]
