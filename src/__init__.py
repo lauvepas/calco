@@ -1,9 +1,11 @@
 from .encoder import Encoder
-from .cleaning import Cleaner, Parameters
+from .cleaning import Cleaner, Parameters, Validator, OutliersManager
 
 __all__ = [
     'Encoder',
     'Cleaner',
-    'Parameters'
+    'Parameters',
+    'Validator',
+    'OutliersManager'
 
 ]

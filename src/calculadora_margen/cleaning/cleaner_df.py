@@ -1,5 +1,4 @@
 import pandas as pd
-import pandas as pd
 from typing import Optional, List
 
 class Cleaner:
@@ -10,6 +9,7 @@ class Cleaner:
     def __init__(self, df: pd.DataFrame):
         # Hacemos copia para no modificar el original por accidente
         self.df = df.copy()
+
 
     def keep_and_rename(self,
                         cols_to_keep: list[str],
@@ -67,6 +67,27 @@ class Cleaner:
         self.df = self.df.dropna(subset=subset)
         return self
     
+
+
+    def drop_duplicates_batch(self,
+                                column: str = 'lote_interno'
+                               ) -> "Cleaner":
+        """
+        Elimina duplicados en la columna especificada, manteniendo la última aparición.
+        Por defecto usamos lote_interno porque los duplicados se producen por actualizaciones de precios. Entendemos que el correcto es el último.
+
+        Parámetros
+        ----------
+        column : str
+            Nombre de la columna donde buscar duplicados.
+        """
+        
+        self.df = self.df.drop_duplicates(subset=[column], keep='last')
+        return self
+
+
+
+
     def fix_numeric_format(self, cols: Optional[List[str]] = None) -> "Cleaner":
         """
         Corrige el formato numérico en las columnas indicadas:
@@ -94,7 +115,6 @@ class Cleaner:
                     .astype(float)
                 )
         return self
-
 
 
 
