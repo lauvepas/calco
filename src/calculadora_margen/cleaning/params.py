@@ -11,23 +11,30 @@ class DatasetParams:
         cols_to_keep: Lista de columnas a conservar.
         rename_map: Diccionario para renombrar columnas.
         cols_to_float: Columnas a convertir a float (opcional).
-        validation_map: Diccionario {columna: regex} para validación in place (opcional).
+        validation_map: Diccionario {columna: regex} para validación (opcional).
+        drop_na_subset: Columnas para las que eliminar filas con NA (opcional).
+        drop_duplicates_subset: Columna para eliminar duplicados manteniendo el último (opcional).
     """
     cols_to_keep: List[str]
     rename_map: Dict[str, str]
     cols_to_float: Optional[List[str]] = None
     validation_map: Optional[Dict[str, str]] = None
+    drop_na_subset: Optional[List[str]] = None
+    drop_duplicates_subset: Optional[str] = None
 
 class Parameters:
     """Centraliza los parámetros para cada CSV o dataset."""
+
     master_lotes = DatasetParams(
         cols_to_keep=['Cód. artículo', 'LOTE', 'LOTEINTERNO'],
         rename_map={
             'Cód. artículo': 'articulo',
             'LOTE': 'lote_proveedor',
             'LOTEINTERNO': 'lote_componente'
-        }
+        },
+        drop_na_subset=['lote_componente']   # sin lote no nos interesa para merge
     )
+
 
     costes = DatasetParams(
         cols_to_keep=[
@@ -44,8 +51,11 @@ class Parameters:
         validation_map={
             'componente': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
             'lote_componente': r'^[0-9]{4}-[0-9]{3}$'   # 1234-567
-        }
+        },
+        drop_na_subset=['PRCMONEDA'],   # si no tiene precio, no nos interesa
+        drop_duplicates_subset='lote_componente'   # eliminamos duplicados en lote manteniendo el último
     )
+
 
     fabricaciones = DatasetParams(
         cols_to_keep=[
@@ -54,7 +64,7 @@ class Parameters:
             'Lote Producto',
             'Unidades Fabricadas',
             'Componente',
-            'Lote Componente',
+            'lote_componente',
             'Consumo Unitario',
             'Consumo Total', 
             'Nº Orden'
@@ -64,7 +74,6 @@ class Parameters:
             'Producto': 'articulo',
             'Lote Producto': 'lote_articulo',
             'Componente': 'componente',
-            'Lote Componente': 'lote_componente_proveedor',
             'Consumo Unitario': 'consumo_unitario',
             'Consumo Total': 'consumo_total',
             'Unidades Fabricadas':'unidades_fabricadas',
@@ -74,5 +83,6 @@ class Parameters:
         validation_map={
             'articulo': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
             'componente': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
-        }
+        },
+        drop_na_subset=['lote_articulo', 'lote_componente']   # sin lote no se ha fabricado ni le podemos asociar coste
     )

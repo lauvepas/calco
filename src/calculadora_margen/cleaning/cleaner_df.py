@@ -10,7 +10,6 @@ class Cleaner:
         # Hacemos copia para no modificar el original por accidente
         self.df = df.copy()
 
-
     def keep_and_rename(self,
                         cols_to_keep: list[str],
                         rename_map: dict[str, str] = None
@@ -26,7 +25,6 @@ class Cleaner:
             Mapeo {columna_original: nuevo_nombre}. Las claves deben
             estar dentro de cols_to_keep.
 
-
         """
         # Validación de rename_map
         if rename_map:
@@ -40,13 +38,14 @@ class Cleaner:
             .loc[:, cols_to_keep]
             .rename(columns=rename_map or {})
         )
+
         return self
     
 
     def drop_duplicates(self,
-                   subset: list[str] = None,
-                   keep: str = 'first'
-                  ) -> "Cleaner":
+                    subset: list[str] = None,
+                    keep: str = 'first'
+                   ) -> "Cleaner":
         self.df = self.df.drop_duplicates(subset=subset, keep=keep)
         return self
     
@@ -63,7 +62,7 @@ class Cleaner:
             se consideran todas las columnas.
 
         """
-   
+    
         self.df = self.df.dropna(subset=subset)
         return self
     
@@ -84,8 +83,6 @@ class Cleaner:
         
         self.df = self.df.drop_duplicates(subset=[column], keep='last')
         return self
-
-
 
 
     def fix_numeric_format(self, cols: Optional[List[str]] = None) -> "Cleaner":
@@ -116,9 +113,19 @@ class Cleaner:
                 )
         return self
 
-
+    def to_upper(self) -> "Cleaner":
+        """
+        Convierte a mayúsculas todos los valores no nulos del DataFrame.
+        Preserva los valores nulos (NaN) para mantener la funcionalidad de pandas.
+        """
+        # Convertir solo los valores no nulos a mayúsculas
+        for column in self.df.columns:
+            if self.df[column].dtype == 'object':  # Solo procesar columnas de texto
+                self.df[column] = self.df[column].apply(
+                    lambda x: x.upper() if pd.notna(x) else x
+                )
+        return self
 
     def get_df(self) -> pd.DataFrame:
         """Devuelve el DataFrame resultante tras las operaciones."""
         return self.df
-

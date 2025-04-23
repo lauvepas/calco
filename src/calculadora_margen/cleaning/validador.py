@@ -5,7 +5,8 @@ from typing import Optional, Dict
 class Validator:
     """
     Valida y filtra filas de un DataFrame según expresiones regulares.
-    Trabaja sobre una copia del DataFrame original.
+    Las filas que no cumplen los patrones son eliminadas y almacenadas
+    para referencia posterior.
     """
     def __init__(self, df: pd.DataFrame):
         # Hacemos copia para no modificar el original por accidente
@@ -16,6 +17,7 @@ class Validator:
     def validate_with_map(self, validation_map: Optional[Dict[str, str]] = None) -> 'Validator':
         """
         Valida las columnas según el diccionario de validaciones proporcionado.
+        Elimina las filas que no cumplen con los patrones especificados.
 
         Parámetros
         ----------
@@ -28,6 +30,7 @@ class Validator:
         """
         if validation_map:
             print(f"Tamaño inicial del DataFrame: {len(self.df)}")
+            
             for column, pattern in validation_map.items():
                 if column in self.df.columns:
                     print(f"\nValidando columna: {column}")
@@ -42,10 +45,8 @@ class Validator:
                     if not invalid_rows.empty:
                         # Guardar las filas inválidas
                         self.invalid[column] = invalid_rows
-                        # Mantener solo las filas válidas
+                        # Eliminar filas inválidas
                         self.df = self.df[mask].copy()
-                else:
-                    print(f"Advertencia: La columna {column} no existe en el DataFrame")
             
             print(f"\nTamaño final del DataFrame: {len(self.df)}")
         return self
