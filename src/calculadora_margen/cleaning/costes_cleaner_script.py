@@ -40,26 +40,6 @@ costes['coste_componente_unitario'] = costes['coste_componente_unitario'].str.re
 costes.isnull().sum()
 costes.info()
 
-
-######### VOY POR AQUÍ
-
-
-# Outliers en 'componente'
-pattern = re.compile(r'^[\p{L}]+[0-9]{2,3}$')
-invalid_rows = costes[~costes['componente'].apply(lambda x: bool(pattern.fullmatch(x)))]
-print(invalid_rows)
-# Eliminamos códigos mal definidos
-costes = costes[costes['componente'].apply(lambda x: bool(pattern.fullmatch(x)))]
-
-# ouliers en 'lote_interno'
-pattern = re.compile(r'^[0-9]{4}-[0-9]{3}$')
-invalid_rows = costes[~costes['lote_interno'].apply(lambda x: bool(pattern.fullmatch(x)))]
-print(invalid_rows.count())
-print(invalid_rows['componente'].unique())
-# Eliminamos códigos mal definidos
-costes = costes[costes['lote_interno'].apply(lambda x: bool(pattern.fullmatch(x)))]
-
-
 def remove_duplicated_batch(df, columna='lote_interno'):
     """
     Elimina duplicados en la columna especificada, manteniendo la última aparición.
@@ -80,6 +60,25 @@ def remove_duplicated_batch(df, columna='lote_interno'):
     return df
 
 costes = remove_duplicated_batch(costes).copy()
+
+
+# Validador en 'componente'
+pattern = re.compile(r'^[\p{L}]+[0-9]{2,3}$')
+invalid_rows = costes[~costes['componente'].apply(lambda x: bool(pattern.fullmatch(x)))]
+print(invalid_rows)
+# Eliminamos códigos mal definidos
+costes = costes[costes['componente'].apply(lambda x: bool(pattern.fullmatch(x)))]
+
+# Validador en 'lote_interno'
+pattern = re.compile(r'^[0-9]{4}-[0-9]{3}$')
+invalid_rows = costes[~costes['lote_interno'].apply(lambda x: bool(pattern.fullmatch(x)))]
+print(invalid_rows.count())
+print(invalid_rows['componente'].unique())
+# Eliminamos códigos mal definidos
+costes = costes[costes['lote_interno'].apply(lambda x: bool(pattern.fullmatch(x)))]
+
+
+######### VOY POR AQUÍ
 
 def detect_outliers(group, componente):
     group = group.copy()
