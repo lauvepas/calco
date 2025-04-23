@@ -25,7 +25,7 @@ class Parameters:
         rename_map={
             'Cód. artículo': 'articulo',
             'LOTE': 'lote_proveedor',
-            'LOTEINTERNO': 'lote_interno'
+            'LOTEINTERNO': 'lote_componente'
         }
     )
 
@@ -38,13 +38,41 @@ class Parameters:
         rename_map={
             'Cód. artículo': 'componente',
             'PRCMONEDA': 'coste_componente_unitario',
-            'LOTEINTERNO': 'lote_interno'
+            'LOTEINTERNO': 'lote_componente'
         },
         cols_to_float=['coste_componente_unitario'],
         validation_map={
             'componente': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
-            'lote_interno': r'^[0-9]{4}-[0-9]{3}$'   # 1234-567
+            'lote_componente': r'^[0-9]{4}-[0-9]{3}$'   # 1234-567
         }
     )
 
-
+    fabricaciones = DatasetParams(
+        cols_to_keep=[
+            'Fecha Recepción',
+            'Producto',
+            'Lote Producto',
+            'Unidades Fabricadas',
+            'Componente',
+            'Lote Componente',
+            'Consumo Unitario',
+            'Consumo Total', 
+            'Nº Orden'
+        ],
+        rename_map={
+            'Fecha Recepción': 'fecha_fabricacion',
+            'Producto': 'articulo',
+            'Lote Producto': 'lote_articulo',
+            'Componente': 'componente',
+            'Lote Componente': 'lote_componente_proveedor',
+            'Consumo Unitario': 'consumo_unitario',
+            'Consumo Total': 'consumo_total',
+            'Unidades Fabricadas':'unidades_fabricadas',
+            'Nº Orden': 'id_orden'
+        },
+        cols_to_float=['unidades_fabricadas', 'consumo_unitario', 'consumo_total'],
+        validation_map={
+            'articulo': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
+            'componente': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXTO + 2-3 números
+        }
+    )
