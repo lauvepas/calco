@@ -7,7 +7,6 @@ class Cleaner:
     sobre un DataFrame de pandas de forma encadenada.
     """
     def __init__(self, df: pd.DataFrame):
-        # Hacemos copia para no modificar el original por accidente
         self.df = df.copy()
 
     def keep_and_rename(self,
@@ -24,6 +23,11 @@ class Cleaner:
         rename_map : dict[str, str], opcional
             Mapeo {columna_original: nuevo_nombre}. Las claves deben
             estar dentro de cols_to_keep.
+
+        Retorna
+        -------
+        self : Cleaner
+            La misma instancia, con self.df actualizada.            
 
         """
         # Validación de rename_map
@@ -61,6 +65,10 @@ class Cleaner:
             Columnas a considerar para identificar NA. Si es None,
             se consideran todas las columnas.
 
+        Retorna
+        -------
+        self : Cleaner
+            La misma instancia, con self.df actualizada.            
         """
     
         self.df = self.df.dropna(subset=subset)
@@ -79,6 +87,11 @@ class Cleaner:
         ----------
         column : str
             Nombre de la columna donde buscar duplicados.
+        
+        Retorna
+        -------
+        self : Cleaner
+            La misma instancia, con self.df actualizada.            
         """
         
         self.df = self.df.drop_duplicates(subset=[column], keep='last')
@@ -117,10 +130,18 @@ class Cleaner:
         """
         Convierte a mayúsculas todos los valores no nulos del DataFrame.
         Preserva los valores nulos (NaN) para mantener la funcionalidad de pandas.
+
+        Parámetros
+        ----------
+        None
+
+        Retorna
+        -------
+        self : Cleaner
+            La misma instancia, con self.df actualizada.            
         """
-        # Convertir solo los valores no nulos a mayúsculas
         for column in self.df.columns:
-            if self.df[column].dtype == 'object':  # Solo procesar columnas de texto
+            if self.df[column].dtype == 'object':
                 self.df[column] = self.df[column].apply(
                     lambda x: x.upper() if pd.notna(x) else x
                 )

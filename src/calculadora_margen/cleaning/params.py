@@ -25,6 +25,7 @@ class DatasetParams:
 class Parameters:
     """Centraliza los parámetros para cada CSV o dataset."""
 
+  
     master_lotes = DatasetParams(
         cols_to_keep=['Cód. artículo', 'LOTE', 'LOTEINTERNO'],
         rename_map={
