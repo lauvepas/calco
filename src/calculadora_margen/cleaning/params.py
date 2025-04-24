@@ -60,25 +60,28 @@ class Parameters:
 
     fabricaciones = DatasetParams(
         cols_to_keep=[
+            'Nº Orden',
             'Fecha Recepción',
             'Producto',
             'Lote Producto',
             'Unidades Fabricadas',
             'Componente',
-            'lote_componente',
+            'lote_componente_x',
+            'coste_componente_unitario',
             'Consumo Unitario',
-            'Consumo Total', 
-            'Nº Orden'
+            'Consumo Total'
         ],
         rename_map={
+            'Nº Orden': 'id_orden',
             'Fecha Recepción': 'fecha_fabricacion',
             'Producto': 'articulo',
             'Lote Producto': 'lote_articulo',
-            'Componente': 'componente',
-            'Consumo Unitario': 'consumo_unitario',
-            'Consumo Total': 'consumo_total',
             'Unidades Fabricadas':'unidades_fabricadas',
-            'Nº Orden': 'id_orden'
+            'Componente': 'componente',
+            'lote_componente_x': 'lote_componente',
+            'coste_componente_unitario': 'coste_componente_unitario',
+            'Consumo Unitario': 'consumo_unitario',
+            'Consumo Total': 'consumo_total'
         },
         cols_to_float=['unidades_fabricadas', 'consumo_unitario', 'consumo_total'],
         validation_map={
