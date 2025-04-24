@@ -209,7 +209,6 @@ class DataFrameCleaner(BaseCleaner):
     def get_df(self) -> pd.DataFrame:
         """Devuelve el DataFrame resultante."""
         return self.df
-
     def __repr__(self):
         """Asegura que el resumen se muestre cuando se imprime el objeto en un notebook."""
         self._print_operation_summary("Resumen de limpieza", {
