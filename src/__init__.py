@@ -1,9 +1,9 @@
 from .encoder import Encoder
-from .cleaning import Cleaner, Parameters, Validator, OutliersManager
+from .cleaning import DataFrameCleaner, Parameters, Validator, OutliersManager
 
 __all__ = [
     'Encoder',
-    'Cleaner',
+    'DataFrameCleaner',
     'Parameters',
     'Validator',
     'OutliersManager'
