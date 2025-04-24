@@ -141,15 +141,6 @@ class OutliersManager:
         print(f"Outliers detectados inicialmente: {self._summary['initial_outliers']}")
         print(f"Outliers reemplazados por la media: {self._summary['replaced_outliers']}")
         print(f"Outliers restantes: {self._summary['remaining_outliers']}")
-        
-        if self._summary['remaining_outliers'] > 0:
-            print("\nDetalle de outliers restantes:")
-            for info in self._summary['remaining_outliers_info']:
-                print(f"- {info['componente']}: {info['n_outliers']} outliers "
-                      f"(desviación media: {info['desviacion_media']:.1f}%)")
-                if self._verbose:
-                    print(f"    Valores: {info['valores']}")
-                    print(f"    Media del componente: {info['media_componente']:.2f}")
 
     def clean_columns(self) -> 'OutliersManager':
         """

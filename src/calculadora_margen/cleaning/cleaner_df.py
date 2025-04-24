@@ -10,6 +10,15 @@ class BaseCleaner(ABC):
     def __init__(self, df: pd.DataFrame, parent_cleaner=None):
         self.df = df.copy()
         self._parent = parent_cleaner
+        self._initial_size = len(df)
+
+    def _print_operation_summary(self, operation: str, details: dict):
+        """Imprime un resumen de la operación realizada."""
+        print(f"\n=== {operation.upper()} ===")
+        for key, value in details.items():
+            print(f"  {key}: {value}")
+        if 'filas_eliminadas' in details:
+            print(f"  Tamaño final del DataFrame: {len(self.df)}")
 
     @property
     def columns_cleaner(self):
@@ -24,7 +33,7 @@ class BaseCleaner(ABC):
         return DataCleaner(self.df, self)
 
     def get_df(self) -> pd.DataFrame:
-        """Devuelve el DataFrame resultante tras las operaciones."""
+        """Devuelve el DataFrame resultante."""
         return self.df
 
 class ColumnsCleaner(BaseCleaner):
@@ -37,20 +46,9 @@ class ColumnsCleaner(BaseCleaner):
                       ) -> "ColumnsCleaner":
         """
         Conserva sólo las columnas en cols_to_keep y renómbralas según rename_map.
-
-        Parámetros
-        ----------
-        cols_to_keep : list[str]
-            Lista de nombres de columnas a conservar.
-        rename_map : dict[str, str], opcional
-            Mapeo {columna_original: nuevo_nombre}. Las claves deben
-            estar dentro de cols_to_keep.
-
-        Retorna
-        -------
-        self : ColumnsCleaner
-            La misma instancia, con self.df actualizada.            
         """
+        initial_cols = len(self.df.columns)
+        
         if rename_map:
             invalid = set(rename_map) - set(cols_to_keep)
             if invalid:
@@ -61,6 +59,14 @@ class ColumnsCleaner(BaseCleaner):
             .loc[:, cols_to_keep]
             .rename(columns=rename_map or {})
         )
+        
+        self._print_operation_summary("Selección y renombrado de columnas", {
+            "columnas_iniciales": initial_cols,
+            "columnas_finales": len(self.df.columns),
+            "columnas_conservadas": cols_to_keep,
+            "columnas_renombradas": rename_map or {}
+        })
+        
         if self._parent:
             self._parent.df = self.df
         return self
@@ -76,7 +82,15 @@ class RowsCleaner(BaseCleaner):
         """
         Elimina filas duplicadas.
         """
+        initial_rows = len(self.df)
         self.df = self.df.drop_duplicates(subset=subset, keep=keep)
+        
+        self._print_operation_summary("Eliminación de duplicados", {
+            "filas_eliminadas": initial_rows - len(self.df),
+            "columnas_consideradas": subset or "todas",
+            "criterio": f"mantener_{keep}"
+        })
+        
         if self._parent:
             self._parent.df = self.df
         return self
@@ -86,19 +100,15 @@ class RowsCleaner(BaseCleaner):
                ) -> "RowsCleaner":
         """
         Elimina filas que contienen valores NA en las columnas indicadas.
-
-        Parámetros
-        ----------
-        subset : list[str], opcional
-            Columnas a considerar para identificar NA. Si es None,
-            se consideran todas las columnas.
-
-        Retorna
-        -------
-        self : RowsCleaner
-            La misma instancia, con self.df actualizada.            
         """
+        initial_rows = len(self.df)
         self.df = self.df.dropna(subset=subset)
+        
+        self._print_operation_summary("Eliminación de valores NA", {
+            "filas_eliminadas": initial_rows - len(self.df),
+            "columnas_consideradas": subset or "todas"
+        })
+        
         if self._parent:
             self._parent.df = self.df
         return self
@@ -107,21 +117,16 @@ class RowsCleaner(BaseCleaner):
                             column: str = 'lote_interno'
                            ) -> "RowsCleaner":
         """
-        Elimina duplicados en la columna especificada, manteniendo la última aparición.
-        Por defecto usamos lote_interno porque los duplicados se producen por actualizaciones 
-        de precios. Entendemos que el correcto es el último.
-
-        Parámetros
-        ----------
-        column : str
-            Nombre de la columna donde buscar duplicados.
-        
-        Retorna
-        -------
-        self : RowsCleaner
-            La misma instancia, con self.df actualizada.            
+        Elimina duplicados en la columna especificada.
         """
+        initial_rows = len(self.df)
         self.df = self.df.drop_duplicates(subset=[column], keep='last')
+        
+        self._print_operation_summary("Eliminación de duplicados por lote", {
+            "columna": column,
+            "filas_eliminadas": initial_rows - len(self.df)
+        })
+        
         if self._parent:
             self._parent.df = self.df
         return self
@@ -132,20 +137,7 @@ class DataCleaner(BaseCleaner):
     """
     def fix_numeric_format(self, cols: Optional[List[str]] = None) -> "DataCleaner":
         """
-        Corrige el formato numérico en las columnas indicadas:
-        elimina puntos de miles y reemplaza comas por puntos,
-        luego convierte a float.
-
-        Parámetros
-        ----------
-        cols : list[str], opcional
-            Lista de columnas cuyos valores numéricos están en formato string.
-            Si es None, no se realiza ninguna conversión.
-
-        Retorna
-        -------
-        self : DataCleaner
-            La misma instancia, con self.df actualizada.
+        Corrige el formato numérico en las columnas indicadas.
         """
         if cols is not None:
             for col in cols:
@@ -156,6 +148,11 @@ class DataCleaner(BaseCleaner):
                     .str.replace(',', '.', regex=False)
                     .astype(float)
                 )
+            
+            self._print_operation_summary("Corrección de formato numérico", {
+                "columnas_procesadas": cols
+            })
+            
         if self._parent:
             self._parent.df = self.df
         return self
@@ -163,18 +160,20 @@ class DataCleaner(BaseCleaner):
     def to_upper(self) -> "DataCleaner":
         """
         Convierte a mayúsculas todos los valores no nulos del DataFrame.
-        Preserva los valores nulos (NaN) para mantener la funcionalidad de pandas.
-
-        Retorna
-        -------
-        self : DataCleaner
-            La misma instancia, con self.df actualizada.            
         """
+        columns_processed = []
         for column in self.df.columns:
             if self.df[column].dtype == 'object':
                 self.df[column] = self.df[column].apply(
                     lambda x: x.upper() if pd.notna(x) else x
                 )
+                columns_processed.append(column)
+        
+        if columns_processed:
+            self._print_operation_summary("Conversión a mayúsculas", {
+                "columnas_procesadas": columns_processed
+            })
+        
         if self._parent:
             self._parent.df = self.df
         return self
@@ -185,3 +184,44 @@ class DataFrameCleaner(BaseCleaner):
     """
     def __init__(self, df: pd.DataFrame):
         super().__init__(df)
+        self._columns_cleaner = None
+        self._rows_cleaner = None
+        self._data_cleaner = None
+
+    @property
+    def columns_cleaner(self):
+        if self._columns_cleaner is None:
+            self._columns_cleaner = ColumnsCleaner(self.df, self)
+        return self._columns_cleaner
+
+    @property
+    def rows_cleaner(self):
+        if self._rows_cleaner is None:
+            self._rows_cleaner = RowsCleaner(self.df, self)
+        return self._rows_cleaner
+
+    @property
+    def data_cleaner(self):
+        if self._data_cleaner is None:
+            self._data_cleaner = DataCleaner(self.df, self)
+        return self._data_cleaner
+
+    def get_df(self) -> pd.DataFrame:
+        """Devuelve el DataFrame resultante."""
+        return self.df
+
+    def __repr__(self):
+        """Asegura que el resumen se muestre cuando se imprime el objeto en un notebook."""
+        self._print_operation_summary("Resumen de limpieza", {
+            "initial_size": self._initial_size,
+            "final_size": len(self.df)
+        })
+        return self.df.__repr__()
+
+    def _repr_html_(self):
+        """Asegura que el resumen se muestre cuando se muestra el DataFrame en HTML (notebooks)."""
+        self._print_operation_summary("Resumen de limpieza", {
+            "initial_size": self._initial_size,
+            "final_size": len(self.df)
+        })
+        return self.df._repr_html_()
