@@ -1,26 +1,37 @@
 import pandas as pd
 from typing import Dict
 from datetime import datetime
+from calculadora_margen.config.parameters import DatasetParams
 
 class OutliersManager:
     """
     Gestiona la detección y tratamiento de outliers en un DataFrame.
-    Trabaja sobre una copia del DataFrame original.
     """
-    def __init__(self, df: pd.DataFrame):
+    def __init__(self, df: pd.DataFrame, params: DatasetParams):
+        """
+        Inicializa el gestor de outliers.
+        
+        Parameters
+        ----------
+        df : pd.DataFrame
+            DataFrame a procesar
+        params : DatasetParams
+            Parámetros de configuración del dataset
+        """
+        if not params.outliers_value_column or not params.outliers_group_column:
+            raise ValueError("Los parámetros de outliers son requeridos")
+            
         self.df = df.copy()
-        self._z_score_threshold = 3
-        self._min_outliers_threshold = 5
-        self._max_iterations = 20
+        self.params = params
         self._summary = {
             'initial_outliers': 0,
             'replaced_outliers': 0,
             'remaining_outliers': 0,
             'remaining_outliers_info': []
         }
-        self._verbose = False  # Añadimos un flag para controlar el nivel de detalle
+        self._verbose = False
 
-    def _detect_outliers_by_group(self, group: pd.DataFrame, componente: str) -> pd.DataFrame:
+    def _detect_outliers_by_group(self, group: pd.DataFrame, group_value: str) -> pd.DataFrame:
         """
         Detecta outliers en un grupo usando z-score.
         
@@ -28,8 +39,8 @@ class OutliersManager:
         ----------
         group : pd.DataFrame
             Grupo de datos para un componente específico
-        componente : str
-            Nombre del componente que se está procesando
+        group_value : str
+            Valor del grupo que se está procesando
             
         Returns
         -------
@@ -37,39 +48,38 @@ class OutliersManager:
             DataFrame con las columnas z_score e is_outlier añadidas
         """
         group = group.copy()
-        group['componente'] = componente
+        group[self.params.outliers_group_column] = group_value
 
-        mean = group['coste_componente_unitario'].mean()
-        std = group['coste_componente_unitario'].std()
+        mean = group[self.params.outliers_value_column].mean()
+        std = group[self.params.outliers_value_column].std()
 
         if std == 0:
             group['z_score'] = 0
             group['is_outlier'] = False
-            if self._verbose:  # Solo mostrar si verbose es True
-                print(f"  - Componente {componente}: Sin variación en costes (std=0)")
+            if self._verbose:
+                print(f"  - Grupo {group_value}: Sin variación en valores (std=0)")
         else:
-            group['z_score'] = (group['coste_componente_unitario'] - mean) / std
-            group['is_outlier'] = group['z_score'].abs() > self._z_score_threshold
+            group['z_score'] = (group[self.params.outliers_value_column] - mean) / std
+            group['is_outlier'] = group['z_score'].abs() > self.params.outliers_z_score
             n_outliers = group['is_outlier'].sum()
             if n_outliers > 0 and self._verbose:  # Solo mostrar si verbose es True
-                print(f"  - Componente {componente}: {n_outliers} outliers detectados")
+                print(f"  - Grupo {group_value}: {n_outliers} outliers detectados")
                 print(f"    Media: {mean:.2f}, Std: {std:.2f}")
                 outliers = group[group['is_outlier']]
-                print(f"    Valores outlier: {outliers['coste_componente_unitario'].tolist()}")
+                print(f"    Valores outlier: {outliers[self.params.outliers_value_column].tolist()}")
 
         return group
 
     def _detect_outliers(self) -> pd.DataFrame:
         """
-        Detecta outliers en todo el DataFrame agrupando por componente.
+        Detecta outliers en todo el DataFrame agrupando por grupo.
         """
         if self._verbose:  # Solo mostrar si verbose es True
-            print("\nAnalizando outliers por componente...")
+            print("\nAnalizando outliers por grupo...")
         
         grupos = []
-        for componente, group in self.df.groupby('componente'):
-            group_sin_componente = group.drop(columns='componente')
-            grupos.append(self._detect_outliers_by_group(group_sin_componente, componente))
+        for grupo, group in self.df.groupby(self.params.outliers_group_column):
+            grupos.append(self._detect_outliers_by_group(group, grupo))
 
         return pd.concat(grupos, ignore_index=True)
 
@@ -91,7 +101,7 @@ class OutliersManager:
         count = 0
         sum_outliers = self._summary['initial_outliers']
         
-        while sum_outliers > self._min_outliers_threshold and count < self._max_iterations:
+        while sum_outliers > self.params.outliers_min_threshold and count < self.params.outliers_max_iterations:
             count += 1
             
             # Separar outliers
@@ -102,9 +112,9 @@ class OutliersManager:
                 break
                 
             # Calcular y aplicar correcciones
-            medias_limpias = sin_outliers.groupby('componente')['coste_componente_unitario'].mean()
-            con_outliers['coste_componente_unitario'] = (
-                con_outliers['componente'].map(medias_limpias)
+            medias_limpias = sin_outliers.groupby(self.params.outliers_group_column)[self.params.outliers_value_column].mean()
+            con_outliers[self.params.outliers_value_column] = (
+                con_outliers[self.params.outliers_group_column].map(medias_limpias)
             )
             
             # Unir y recalcular
@@ -115,18 +125,18 @@ class OutliersManager:
         # Guardar información de outliers restantes
         if sum_outliers > 0:
             outliers_finales = self.df[self.df['is_outlier']]
-            for componente, grupo in outliers_finales.groupby('componente'):
-                valores_grupo = self.df[self.df['componente'] == componente]['coste_componente_unitario']
+            for grupo, grupo_df in outliers_finales.groupby(self.params.outliers_group_column):
+                valores_grupo = self.df[self.df[self.params.outliers_group_column] == grupo][self.params.outliers_value_column]
                 mean = valores_grupo.mean()
-                outliers_valores = grupo['coste_componente_unitario']
+                outliers_valores = grupo_df[self.params.outliers_value_column]
                 desviaciones = abs(outliers_valores - mean) / mean * 100
                 
                 self._summary['remaining_outliers_info'].append({
-                    'componente': componente,
-                    'n_outliers': len(grupo),
+                    'grupo': grupo,
+                    'n_outliers': len(grupo_df),
                     'desviacion_media': desviaciones.mean(),
                     'valores': outliers_valores.tolist(),
-                    'media_componente': mean
+                    'media_grupo': mean
                 })
 
         self._summary['replaced_outliers'] = self._summary['initial_outliers'] - sum_outliers

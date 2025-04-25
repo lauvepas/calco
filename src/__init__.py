@@ -1,6 +1,6 @@
 from .cleaning import DataFrameCleaner
 from .config import Parameters
-from .services import Encoder, Validator, OutliersManager, CostCalculator
+from .services import Encoder, Validator, OutliersManager, CostCalculator, VisualizationManager
 
 __all__ = [
     'Encoder',
@@ -8,6 +8,6 @@ __all__ = [
     'Parameters',
     'Validator',
     'OutliersManager',
-    'CostCalculator'
-
+    'CostCalculator',
+    'VisualizationManager'
 ]

@@ -136,3 +136,61 @@ class CostCalculator:
         print(f"Total registros: {len(self.fabricaciones)}")
         print(f"Registros sin coste: {nulos_final}")
         print(f"Registros con coste calculado: {len(self.fabricaciones) - nulos_final}")
+
+    def generar_costes_fabricacion(self) -> pd.DataFrame:
+        """
+        Genera un DataFrame resumido con los costes de fabricación por orden.
+        
+        Este método:
+        1. Calcula el coste unitario por componente
+        2. Agrupa por orden de fabricación
+        3. Suma los costes totales
+        4. Ordena por fecha
+        
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame con las columnas:
+            - id_orden
+            - fecha_fabricacion
+            - articulo
+            - unidades_fabricadas
+            - coste_total_fabricacion
+        """
+        # Verificar que tenemos todos los costes calculados
+        if self.fabricaciones['coste_componente_unitario'].isna().any():
+            print("ADVERTENCIA: Hay costes pendientes de calcular. Los resultados pueden ser incompletos.")
+        
+        # Calcular coste unitario por componente
+        df_trabajo = self.fabricaciones.copy()
+        df_trabajo['coste_unitario'] = (
+            df_trabajo['coste_componente_unitario'] * 
+            df_trabajo['consumo_unitario']
+        )
+        
+        # Agrupar por orden y sumar costes
+        costes_fabricacion = (
+            df_trabajo
+            .groupby([
+                'id_orden',
+                'fecha_fabricacion',
+                'articulo',
+                'unidades_fabricadas'
+            ])['coste_unitario']
+            .sum()
+            .reset_index()
+        )
+        # Ordenar por fecha
+        costes_fabricacion = costes_fabricacion.sort_values(
+            'fecha_fabricacion',
+            ascending=True
+        )
+        
+        # Resetear índice después de ordenar
+        costes_fabricacion = costes_fabricacion.reset_index(drop=True)
+        
+        print("\nResumen de costes de fabricación:")
+        print(f"Total órdenes procesadas: {len(costes_fabricacion)}")
+        print(f"Rango de fechas: {costes_fabricacion['fecha_fabricacion'].min()} a {costes_fabricacion['fecha_fabricacion'].max()}")
+        
+        return costes_fabricacion
