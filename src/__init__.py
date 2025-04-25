@@ -1,6 +1,6 @@
-from .encoder import Encoder
-from .cleaning import DataFrameCleaner, Parameters, Validator, OutliersManager
-from .maths import CostCalculator
+from .cleaning import DataFrameCleaner
+from .config import Parameters
+from .services import Encoder, Validator, OutliersManager, CostCalculator
 
 __all__ = [
     'Encoder',

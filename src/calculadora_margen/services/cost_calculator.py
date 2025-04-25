@@ -91,7 +91,7 @@ class CostCalculator:
             # Actualizar flags
             self.fabricaciones['flag_coste_calculado'] = self.fabricaciones['coste_componente_unitario'].notna()
         
-        self._imprimir_resumen_final()
+        self._print_concise_summary()
         return self.fabricaciones
     
     def _calcular_coste_producto(self, producto: pd.Series) -> None:
@@ -127,7 +127,7 @@ class CostCalculator:
             self.fabricaciones.loc[mask_como_componente, 'coste_componente_unitario'] = coste_total
             self.fabricaciones.loc[mask_como_componente, 'flag_coste_calculado'] = True
     
-    def _imprimir_resumen_final(self) -> None:
+    def _print_concise_summary(self) -> None:
         """
         Imprime un resumen del estado final del cálculo de costes.
         """
