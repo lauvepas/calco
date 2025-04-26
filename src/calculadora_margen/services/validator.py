@@ -4,16 +4,16 @@ from typing import Optional, Dict
 
 class Validator:
     """
-    Valida y filtra filas de un DataFrame según expresiones regulares.
-    Las filas que no cumplen los patrones son eliminadas y almacenadas
-    para referencia posterior.
+    Validates and filters rows of a DataFrame based on regular expressions.
+    Rows that do not match the patterns are removed and stored
+    for later reference.
     """
     def __init__(self, df: pd.DataFrame):
-        # Hacemos copia para no modificar el original por accidente
+        # Make a copy to avoid accidentally modifying the original
         self.df = df.copy()
-        # Guardará las filas inválidas por columna
+        # Will store invalid rows by column
         self.invalid = {}
-        # Resumen de la validación
+        # Validation summary
         self._summary = {
             'initial_size': 0,
             'final_size': 0,
@@ -22,15 +22,15 @@ class Validator:
 
     def validate_with_map(self, validation_map: Optional[Dict[str, str]] = None) -> 'Validator':
         """
-        Valida las columnas según el diccionario de validaciones proporcionado.
-        Elimina las filas que no cumplen con los patrones especificados.
+        Validates columns according to the provided validation dictionary.
+        Removes rows that do not match the specified patterns.
 
-        Parámetros
+        Parameters
         ----------
-        validation_map : Dict[str, str], opcional
-            Diccionario {columna: patron_regex} con las validaciones a aplicar.
+        validation_map : Dict[str, str], optional
+            Dictionary {column: regex_pattern} of validations to apply.
 
-        Retorna
+        Returns
         -------
         self : Validator
         """
@@ -39,18 +39,18 @@ class Validator:
             
             for column, pattern in validation_map.items():
                 if column in self.df.columns:
-                    # Compilar el patrón para eficiencia
+                    # Compile the pattern for efficiency
                     compiled = re.compile(pattern)
-                    # Aplicar fullmatch usando re
+                    # Apply fullmatch using re
                     mask = self.df[column].astype(str).apply(lambda x: bool(compiled.fullmatch(x)))
-                    # Filas inválidas
+                    # Invalid rows
                     invalid_rows = self.df[~mask].copy()
                     self._summary['invalid_rows_by_column'][column] = len(invalid_rows)
                     
                     if not invalid_rows.empty:
-                        # Guardar las filas inválidas
+                        # Save invalid rows
                         self.invalid[column] = invalid_rows
-                        # Eliminar filas inválidas
+                        # Remove invalid rows
                         self.df = self.df[mask].copy()
             
             self._summary['final_size'] = len(self.df)
@@ -58,7 +58,7 @@ class Validator:
         return self
 
     def _print_concise_summary(self):
-        """Imprime un resumen conciso del proceso de validación."""
+        """Prints a concise summary of the validation process."""
         print("\n=== RESUMEN DE VALIDACIÓN ===")
         print(f"Tamaño inicial del DataFrame: {self._summary['initial_size']}")
         print("\nFilas inválidas por columna:")
@@ -69,12 +69,12 @@ class Validator:
 
     def get_invalid(self, column: str) -> pd.DataFrame:
         """
-        Devuelve las filas inválidas registradas para `column`.
+        Returns the invalid rows recorded for `column`.
         """
         return self.invalid.get(column, pd.DataFrame())
 
     def get_df(self) -> pd.DataFrame:
         """
-        Devuelve el DataFrame filtrado tras todas las validaciones.
+        Returns the filtered DataFrame after all validations.
         """
         return self.df

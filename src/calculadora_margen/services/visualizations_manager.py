@@ -6,19 +6,19 @@ from calculadora_margen.config.parameters import DatasetParams
 
 class VisualizationManager:
     """
-    Gestiona la creación de visualizaciones para análisis de datos.
+    Manages the creation of visualizations for data analysis.
     """
     
     def __init__(self, df: pd.DataFrame, params: DatasetParams):
         """
-        Inicializa el gestor de visualizaciones.
+        Initializes the visualization manager.
         
         Parameters
         ----------
         df : pd.DataFrame
-            DataFrame a visualizar
+            DataFrame to visualize
         params : DatasetParams
-            Parámetros de configuración para las visualizaciones
+            Configuration parameters for visualizations
         """
         if not all([params.viz_date_column, params.viz_value_column, params.viz_group_column]):
             raise ValueError("Se requieren los parámetros de visualización")
@@ -26,8 +26,8 @@ class VisualizationManager:
         self.df = df.copy()
         self.params = params
         
-        # Configuración por defecto de matplotlib
-# Usa un estilo pastel si tienes seaborn, si no, usa ggplot
+        # Default matplotlib configuration
+        # Use a pastel style if seaborn is available, otherwise use ggplot
         try:
             plt.style.use('seaborn-v0_8-pastel')
         except Exception:
@@ -41,33 +41,33 @@ class VisualizationManager:
                         end_date: Optional[str] = None,
                         figsize: Optional[Tuple[int, int]] = None) -> None:
         """
-        Crea un gráfico de líneas para la evolución temporal de costes.
+        Creates a line plot for the temporal evolution of costs.
         
         Parameters
         ----------
         articulo : str
-            Artículo específico a visualizar
+            Specific product to visualize
         start_date : str, optional
-            Fecha de inicio en formato 'YYYY-MM-DD'
+            Start date in 'YYYY-MM-DD' format
         end_date : str, optional
-            Fecha fin en formato 'YYYY-MM-DD'
+            End date in 'YYYY-MM-DD' format
         figsize : tuple, optional
-            Tamaño del gráfico (ancho, alto)
+            Size of the plot (width, height)
         """
-        # Filtrar por artículo
+        # Filter by product
         df_articulo = self.df[self.df[self.params.viz_group_column] == articulo].copy()
         
         if df_articulo.empty:
             print(f"No hay datos para el artículo {articulo}")
             return
             
-        # Convertir fechas si es necesario
+        # Convert dates if necessary
         if not pd.api.types.is_datetime64_any_dtype(df_articulo[self.params.viz_date_column]):
             df_articulo[self.params.viz_date_column] = pd.to_datetime(
                 df_articulo[self.params.viz_date_column]
             )
             
-        # Filtrar por rango de fechas si se especifica
+        # Filter by date range if specified
         if start_date:
             df_articulo = df_articulo[
                 df_articulo[self.params.viz_date_column] >= pd.to_datetime(start_date)
@@ -77,13 +77,13 @@ class VisualizationManager:
                 df_articulo[self.params.viz_date_column] <= pd.to_datetime(end_date)
             ]
             
-        # Ordenar por fecha
+        # Sort by date
         df_articulo = df_articulo.sort_values(self.params.viz_date_column)
         
-        # Crear el gráfico
+        # Create the plot
         plt.figure(figsize=figsize or self.default_figsize)
         
-        # Línea principal
+        # Main line
         plt.plot(
             df_articulo[self.params.viz_date_column],
             df_articulo[self.params.viz_value_column],
@@ -94,7 +94,7 @@ class VisualizationManager:
             label=f'Coste {articulo}'
         )
         
-        # Línea de tendencia
+        # Trend line
         z = np.polyfit(
             range(len(df_articulo)),
             df_articulo[self.params.viz_value_column],
@@ -109,20 +109,20 @@ class VisualizationManager:
             label='Tendencia'
         )
         
-        # Configuración del gráfico
+        # Plot configuration
         plt.title(f"{self.params.viz_title} - {articulo}")
         plt.xlabel('Fecha')
         plt.ylabel(self.params.viz_y_label)
         plt.grid(True, alpha=0.3)
         plt.legend()
         
-        # Rotar etiquetas del eje x
+        # Rotate x-axis labels
         plt.xticks(rotation=45)
         
-        # Ajustar márgenes
+        # Adjust margins
         plt.tight_layout()
         
-        # Mostrar estadísticas
+        # Show statistics
         stats = df_articulo[self.params.viz_value_column].describe()
         print(f"\nEstadísticas para {articulo}:")
         print(f"Media: {stats['mean']:.2f}")
@@ -140,7 +140,7 @@ class VisualizationManager:
                                 end_date: Optional[str] = None,
                                 figsize: Optional[Tuple[int, int]] = None) -> None:
         """
-        Crea un gráfico comparativo de varios artículos.
+        Creates a comparative plot of multiple products.
         """
         plt.figure(figsize=figsize or self.default_figsize)
         

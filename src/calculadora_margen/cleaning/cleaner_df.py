@@ -4,8 +4,7 @@ from abc import ABC, abstractmethod
 
 class BaseCleaner(ABC):
     """
-    Clase base abstracta para operaciones de limpieza/transformación
-    sobre un DataFrame de pandas.
+    Abstract base class for cleaning/transformation operations on a pandas DataFrame.
     """
     def __init__(self, df: pd.DataFrame, parent_cleaner=None):
         self.df = df.copy()
@@ -24,32 +23,31 @@ class BaseCleaner(ABC):
         return DataCleaner(self.df, self)
 
     def get_df(self) -> pd.DataFrame:
-        """Devuelve el DataFrame resultante tras las operaciones."""
+        """Returns the resulting DataFrame after operations."""
         return self.df
 
 class ColumnsCleaner(BaseCleaner):
     """
-    Clase especializada en operaciones sobre columnas del DataFrame.
+    Specialized class for column operations on the DataFrame.
     """
     def keep_and_rename(self,
                        cols_to_keep: list[str],
                        rename_map: dict[str, str] = None
                       ) -> "ColumnsCleaner":
         """
-        Conserva sólo las columnas en cols_to_keep y renómbralas según rename_map.
+        Keeps only the columns in cols_to_keep and renames them according to rename_map.
 
-        Parámetros
+        Parameters
         ----------
         cols_to_keep : list[str]
-            Lista de nombres de columnas a conservar.
-        rename_map : dict[str, str], opcional
-            Mapeo {columna_original: nuevo_nombre}. Las claves deben
-            estar dentro de cols_to_keep.
+            List of column names to keep.
+        rename_map : dict[str, str], optional
+            Mapping {original_column: new_name}. Keys must be within cols_to_keep.
 
-        Retorna
+        Returns
         -------
         self : ColumnsCleaner
-            La misma instancia, con self.df actualizada.            
+            The same instance, with self.df updated.
         """
         if rename_map:
             invalid = set(rename_map) - set(cols_to_keep)
@@ -68,14 +66,14 @@ class ColumnsCleaner(BaseCleaner):
 
 class RowsCleaner(BaseCleaner):
     """
-    Clase especializada en operaciones sobre filas del DataFrame.
+    Specialized class for row operations on the DataFrame.
     """
     def drop_duplicates(self,
                        subset: list[str] = None,
                        keep: str = 'first'
                       ) -> "RowsCleaner":
         """
-        Elimina filas duplicadas.
+        Removes duplicate rows.
         """
         self.df = self.df.drop_duplicates(subset=subset, keep=keep)
         if self._parent:
@@ -86,18 +84,18 @@ class RowsCleaner(BaseCleaner):
                 subset: list[str] = None
                ) -> "RowsCleaner":
         """
-        Elimina filas que contienen valores NA en las columnas indicadas.
+        Removes rows containing NA values in the specified columns.
 
-        Parámetros
+        Parameters
         ----------
-        subset : list[str], opcional
-            Columnas a considerar para identificar NA. Si es None,
-            se consideran todas las columnas.
+        subset : list[str], optional
+            Columns to consider for identifying NA. If None,
+            all columns are considered.
 
-        Retorna
+        Returns
         -------
         self : RowsCleaner
-            La misma instancia, con self.df actualizada.            
+            The same instance, with self.df updated.
         """
         self.df = self.df.dropna(subset=subset)
         if self._parent:
@@ -108,19 +106,19 @@ class RowsCleaner(BaseCleaner):
                             column: str = 'lote_interno'
                            ) -> "RowsCleaner":
         """
-        Elimina duplicados en la columna especificada, manteniendo la última aparición.
-        Por defecto usamos lote_interno porque los duplicados se producen por actualizaciones 
-        de precios. Entendemos que el correcto es el último.
+        Removes duplicates in the specified column, keeping the last occurrence.
+        By default, we use lote_interno because duplicates occur due to price updates.
+        We assume the correct one is the last.
 
-        Parámetros
+        Parameters
         ----------
         column : str
-            Nombre de la columna donde buscar duplicados.
+            Name of the column in which to search for duplicates.
         
-        Retorna
+        Returns
         -------
         self : RowsCleaner
-            La misma instancia, con self.df actualizada.            
+            The same instance, with self.df updated.
         """
         self.df = self.df.drop_duplicates(subset=[column], keep='last')
         if self._parent:
@@ -129,24 +127,24 @@ class RowsCleaner(BaseCleaner):
 
 class DataCleaner(BaseCleaner):
     """
-    Clase especializada en operaciones de limpieza y transformación de datos.
+    Specialized class for data cleaning and transformation operations.
     """
     def fix_numeric_format(self, cols: Optional[List[str]] = None) -> "DataCleaner":
         """
-        Corrige el formato numérico en las columnas indicadas:
-        elimina puntos de miles y reemplaza comas por puntos,
-        luego convierte a float.
+        Fixes numeric format in the specified columns:
+        removes thousand separators and replaces commas with dots,
+        then converts to float.
 
-        Parámetros
+        Parameters
         ----------
-        cols : list[str], opcional
-            Lista de columnas cuyos valores numéricos están en formato string.
-            Si es None, no se realiza ninguna conversión.
+        cols : list[str], optional
+            List of columns whose numeric values are in string format.
+            If None, no conversion is performed.
 
-        Retorna
+        Returns
         -------
         self : DataCleaner
-            La misma instancia, con self.df actualizada.
+            The same instance, with self.df updated.
         """
         if cols is not None:
             for col in cols:
@@ -163,13 +161,13 @@ class DataCleaner(BaseCleaner):
 
     def to_upper(self) -> "DataCleaner":
         """
-        Convierte a mayúsculas todos los valores no nulos del DataFrame.
-        Preserva los valores nulos (NaN) para mantener la funcionalidad de pandas.
+        Converts all non-null DataFrame values to uppercase.
+        Preserves null values (NaN) to maintain pandas functionality.
 
-        Retorna
+        Returns
         -------
         self : DataCleaner
-            La misma instancia, con self.df actualizada.            
+            The same instance, with self.df updated.
         """
         for column in self.df.columns:
             if self.df[column].dtype == 'object':
@@ -182,19 +180,19 @@ class DataCleaner(BaseCleaner):
     
     def fix_date_format(self, cols: List[str], format: str = '%d/%m/%Y') -> "DataCleaner":
         """
-        Convierte las columnas especificadas a formato datetime.
+        Converts the specified columns to datetime format.
         
         Parameters
         ----------
         cols : List[str]
-            Lista de columnas que contienen fechas
+            List of columns containing dates.
         format : str, optional
-            Formato de la fecha en los datos de entrada, por defecto '%d/%m/%Y'
+            Date format of input data, default '%d/%m/%Y'.
             
         Returns
         -------
         DataCleaner
-            La instancia actual del limpiador
+            The current cleaner instance.
         """
         for col in cols:
             try:
@@ -213,7 +211,7 @@ class DataCleaner(BaseCleaner):
 
 class DataFrameCleaner(BaseCleaner):
     """
-    Clase fachada que proporciona acceso a todas las funcionalidades de limpieza.
+    Facade class that provides access to all cleaning functionalities.
     """
     def __init__(self, df: pd.DataFrame):
         super().__init__(df)

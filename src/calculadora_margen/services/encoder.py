@@ -31,11 +31,8 @@ class Encoder:
             The modified DataFrame with the new concatenated key column.
         """
         if col2 is None:
-            raise ValueError("You must specify the second column to concatenate with.")
+            raise ValueError("Debes especificar la segunda columna a concatenar.")
 
         self.df[new_col_name] = self.df[col1].astype(str) + "-" + self.df[col2].astype(str)
         return self.df
-
-
-
-# no hacer esto, hacer una función que me diga si el merge va a funcionar o si estoy perdiendo datos.
+    
