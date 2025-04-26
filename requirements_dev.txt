@@ -1,5 +1,9 @@
-pip==23.3.1
+pip>=23.3.1
 setuptools==75.8.2
 wheel==0.45.1
 bumpversion==0.6.0
 -r requirements.txt
+
+# Jupyter for notebooks
+jupyter>=1.0
+notebook>=6.5
