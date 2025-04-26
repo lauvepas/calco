@@ -27,7 +27,11 @@ class VisualizationManager:
         self.params = params
         
         # Configuración por defecto de matplotlib
-        plt.style.use('classic')
+# Usa un estilo pastel si tienes seaborn, si no, usa ggplot
+        try:
+            plt.style.use('seaborn-v0_8-pastel')
+        except Exception:
+            plt.style.use('ggplot')
         self.default_figsize = (12, 6)
         self.colors = plt.cm.Set3(np.linspace(0, 1, 12))
 
@@ -128,6 +132,8 @@ class VisualizationManager:
         
         plt.show()
 
+
+
     def plot_multiple_time_series(self,
                                 articulos: list[str],
                                 start_date: Optional[str] = None,
@@ -151,8 +157,7 @@ class VisualizationManager:
                 df_articulo[self.params.viz_date_column],
                 df_articulo[self.params.viz_value_column],
                 marker='o',
-                label=articulo,
-                color=self.colors[i % len(self.colors)]
+                label=articulo
             )
         
         plt.title(self.params.viz_title)
