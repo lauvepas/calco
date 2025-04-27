@@ -1,81 +1,76 @@
 # Changelog
 
-Todos los cambios notables en este proyecto serán documentados en este archivo.
+All notable changes to this project will be documented in this file.
 
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] - 2025-04-27
+
+### Added
+- `fix_date_format` function in `DataCleaner` for automatic date conversion.
+- Visualization parameters in `DatasetParams` and centralized configuration in `Parameters`.
+- `generar_costes_fabricacion` method in `CostCalculator` for cost summaries by order.
+- Pastel color palette and visual enhancements in charts.
+- Example use of visualizations in notebooks.
+- Clear separation of dependencies in `requirements.txt` and `requirements_dev.txt`.
+- Professional `README.md` template tailored to the project.
+
+### Changed
+- Improved visualization styles and removal of hard-to-read colors.
+- Modernization of `setup.py` and `setup.cfg`.
+- Updated folder and module structure.
+
+### Fixed
+- Corrections in date and type conversions within the cleaning pipelines.
+- Resolved visualization issues due to unavailable styles.
+- Fixed outlier replacement logic.
+- Improved error handling and informative messaging in services.
+
+### Removed
+- Removal of duplicate logic in outlier handling and visualization.
+- Cleanup of unnecessary dependencies from requirements files.
+
+## [0.2.1] - 2025-04-27
+
+### Added
+- Definition of custom exception `VisualizationError`.
+
+### Fixed
+- Corrections in date and type conversions within the cleaning pipelines.
+- Resolved visualization issues due to unavailable styles.
+
+## [0.2.0] - 2025-04-27
+
+### Added
+- Processing functionality `CostCalculator` for recursive manufacturing cost calculation.
+- Processing functionality `VisualizationManager` for data visualization.
 
 ## [0.1.0] - 2025-04-24
 
 ### Added
-- Nueva arquitectura modular del proyecto con separación clara de responsabilidades:
-  - Módulo `cleaning/` para procesamiento y limpieza de datos
-  - Módulo `encoder/` para gestión de claves y codificación
-  - Módulo `maths/` para cálculos y operaciones matemáticas
-  
-- Implementación completa del módulo de limpieza:
-  - Clase `DataFrameCleaner` con arquitectura de componentes:
-    - `columns_cleaner`: Gestión y transformación de columnas
-    - `rows_cleaner`: Filtrado y limpieza de filas
-    - `data_cleaner`: Transformación y normalización de datos
-  - Sistema de herencia desde `BaseCleaner` para reutilización de código
-  - Implementación de patrones de diseño para mejor mantenibilidad
-
-- Sistema avanzado de parametrización:
-  - Clase `Parameters` con configuración centralizada
-  - Clase `DatasetParams` con implementación de dataclasses para:
-    - Validación de tipos en tiempo de compilación
-    - Inmutabilidad de parámetros (frozen=True)
-    - Configuración específica por tipo de dataset
-
-- Nuevas funcionalidades de procesamiento:
-  - `OutliersManager` con capacidades de:
-    - Detección de outliers mediante z-score
-    - Procesamiento recursivo de valores atípicos
-    - Sistema de reporting detallado
-  - `Validator` con:
-    - Validación configurable por columnas
-    - Sistema de reglas personalizables
-    - Gestión de errores granular
-  - `Encoder` para:
-    - Generación de claves únicas
-    - Codificación de valores categóricos
-    - Gestión de relaciones entre datasets
+- Modular architecture with clear separation of responsibilities.
+- Full implementation of the cleaning module (`DataFrameCleaner`, `BaseCleaner`).
+- Advanced parameterization system (`Parameters`, `DatasetParams`).
+- Processing functionalities (`OutliersManager`, `Validator`, `Encoder`).
 
 ### Changed
-- Refactorización arquitectónica completa:
-  - Migración a estructura modular
-  - Implementación de principios SOLID
-  - Mejora en la cohesión y acoplamiento del código
-
-- Optimizaciones en el sistema de limpieza:
-  - Nuevo pipeline de procesamiento más eficiente
-  - Implementación de procesamiento por lotes
-  - Mejora en el manejo de memoria para grandes datasets
-
-- Sistema de gestión de outliers actualizado:
-  - Nuevo algoritmo recursivo para cálculo de costes
-  - Implementación de método iterativo para procesamiento
-  - Sistema de logging detallado de operaciones
+- Complete architectural refactoring.
+- Optimizations in the cleaning system.
+- Updated outlier management system.
 
 ### Removed
-- Eliminación de código legacy:
-  - Clase `CostesCleaner` reemplazada por nueva arquitectura
-  - Eliminación de funciones duplicadas
-  - Limpieza de imports no utilizados
+- Removal of legacy code and duplicate functions.
 
 ### Fixed
-- Correcciones críticas:
-  - Solución al problema de recursión en cálculo de costes
-  - Corrección en el manejo de NaN en procesamiento
-  - Mejora en la detección de duplicados
+- Critical fixes in cost recursion, handling of NaN, and duplicates.
 
 ## [0.0.1] - 2025-04-16
-### Added
-- Configuración inicial del proyecto:
-  - Estructura base de directorios
-  - Configuración del entorno virtual
-  - Archivos de configuración básicos
 
-[0.1.0]: https://github.com/usuario/CalculadoraMargen/compare/v0.0.1...v0.1.0
-[0.0.1]: https://github.com/usuario/CalculadoraMargen/releases/tag/v0.0.1
+### Added
+- Initial project setup.
+- Base directory structure.
+- Virtual environment configuration.
+- Basic configuration files.
