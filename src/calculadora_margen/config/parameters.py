@@ -11,6 +11,7 @@ class DatasetParams:
         cols_to_keep: List of columns to retain
         rename_map: Dictionary to rename columns
         cols_to_float: Columns to convert to float (optional)
+        cols_to_date: Columns to convert to date (optional)
         validation_map: Dictionary {column: regex} for validation (optional)
         drop_na_subset: Columns for which to drop rows with NA (optional)
         drop_duplicates_subset: Column for removing duplicates, keeping the last (optional)
@@ -34,6 +35,7 @@ class DatasetParams:
     cols_to_keep: List[str]
     rename_map: Dict[str, str]
     cols_to_float: Optional[List[str]] = None
+    cols_to_date: Optional[List[str]] = None
     validation_map: Optional[Dict[str, str]] = None
     drop_na_subset: Optional[List[str]] = None
     drop_duplicates_subset: Optional[str] = None
@@ -118,6 +120,7 @@ class Parameters:
             'Consumo Total': 'consumo_total'
         },
         cols_to_float=['unidades_fabricadas', 'consumo_unitario', 'consumo_total'],
+        cols_to_date=['fecha_fabricacion'],
         validation_map={
             'articulo': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXT + 2-3 números
             'componente': r'^[A-Za-zÀ-ÖØ-öø-ÿ]+[0-9]{2,3}$',   # TEXT + 2-3 números
