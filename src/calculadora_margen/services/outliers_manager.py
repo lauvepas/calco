@@ -17,6 +17,11 @@ class OutliersManager:
             DataFrame to process
         params : DatasetParams
             Dataset configuration parameters
+
+        Returns
+        -------
+        OutliersManager
+            The initialized outliers manager.
         """
         if not params.outliers_value_column or not params.outliers_group_column:
             raise ValueError("Los parámetros de outliers son requeridos")
@@ -33,7 +38,7 @@ class OutliersManager:
 
     def _detect_outliers_by_group(self, group: pd.DataFrame, group_value: str) -> pd.DataFrame:
         """
-        Detects outliers in a group using z-score.
+        Detects outliers in a group using z-score (private method).
 
         Parameters
         ----------
@@ -72,7 +77,7 @@ class OutliersManager:
 
     def _detect_outliers(self) -> pd.DataFrame:
         """
-        Detects outliers across the entire DataFrame by grouping.
+        Detects outliers across the entire DataFrame by grouping (private method).
         """
         if self._verbose:  # Only if verbose is True
             print("\nAnalizando outliers por grupo...")
@@ -91,6 +96,11 @@ class OutliersManager:
         ----------
         verbose : bool, default False
             If True, displays detailed process information.
+
+        Returns
+        -------
+        OutliersManager
+            The processed outliers manager.
         """
         self._verbose = verbose
         
@@ -146,7 +156,7 @@ class OutliersManager:
         return self
 
     def _print_concise_summary(self):
-        """Prints a concise summary of the outlier processing."""
+        """Prints a concise summary of the outlier processing (private method)."""
         print("\n=== RESUMEN DE OUTLIERS ===")
         print(f"Outliers detectados inicialmente: {self._summary['initial_outliers']}")
         print(f"Outliers reemplazados por la media: {self._summary['replaced_outliers']}")

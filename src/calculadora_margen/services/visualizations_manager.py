@@ -53,6 +53,10 @@ class VisualizationManager:
             End date in 'YYYY-MM-DD' format
         figsize : tuple, optional
             Size of the plot (width, height)
+
+        Returns
+        -------
+        None
         """
         # Filter by product
         df_articulo = self.df[self.df[self.params.viz_group_column] == articulo].copy()
@@ -141,6 +145,18 @@ class VisualizationManager:
                                 figsize: Optional[Tuple[int, int]] = None) -> None:
         """
         Creates a comparative plot of multiple products.
+
+        Parameters
+        ----------
+        articulos : list[str]
+            List of products to visualize
+        start_date : str, optional
+            Start date in 'YYYY-MM-DD' format
+        end_date : str, optional
+
+        Returns
+        -------
+        None
         """
         plt.figure(figsize=figsize or self.default_figsize)
         

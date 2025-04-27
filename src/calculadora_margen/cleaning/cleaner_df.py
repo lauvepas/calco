@@ -74,6 +74,18 @@ class RowsCleaner(BaseCleaner):
                       ) -> "RowsCleaner":
         """
         Removes duplicate rows.
+
+        Parameters
+        ----------
+        subset : list[str], optional
+            Columns to consider for identifying duplicates.
+        keep : str, optional
+            Determines which duplicate rows to keep.
+
+        Returns
+        -------
+        self : RowsCleaner
+            The same instance, with self.df updated.
         """
         self.df = self.df.drop_duplicates(subset=subset, keep=keep)
         if self._parent:
@@ -164,6 +176,10 @@ class DataCleaner(BaseCleaner):
         Converts all non-null DataFrame values to uppercase.
         Preserves null values (NaN) to maintain pandas functionality.
 
+        Parameters
+        ----------
+        None
+
         Returns
         -------
         self : DataCleaner
@@ -212,6 +228,16 @@ class DataCleaner(BaseCleaner):
 class DataFrameCleaner(BaseCleaner):
     """
     Facade class that provides access to all cleaning functionalities.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The DataFrame to clean.
+    
+    Returns
+    -------
+    DataFrameCleaner
+        The cleaner instance.
     """
     def __init__(self, df: pd.DataFrame):
         super().__init__(df)

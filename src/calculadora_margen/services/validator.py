@@ -9,6 +9,20 @@ class Validator:
     for later reference.
     """
     def __init__(self, df: pd.DataFrame):
+        """
+        Initializes the Validator with the given DataFrame.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The DataFrame to validate.
+        
+        Returns
+        -------
+        Validator
+            The initialized validator.
+        """
+
         # Make a copy to avoid accidentally modifying the original
         self.df = df.copy()
         # Will store invalid rows by column
@@ -58,7 +72,7 @@ class Validator:
         return self
 
     def _print_concise_summary(self):
-        """Prints a concise summary of the validation process."""
+        """Prints a concise summary of the validation process (private method)."""
         print("\n=== RESUMEN DE VALIDACIÓN ===")
         print(f"Tamaño inicial del DataFrame: {self._summary['initial_size']}")
         print("\nFilas inválidas por columna:")
@@ -70,6 +84,16 @@ class Validator:
     def get_invalid(self, column: str) -> pd.DataFrame:
         """
         Returns the invalid rows recorded for `column`.
+
+        Parameters
+        ----------
+        column : str
+            The column to get invalid rows from.
+
+        Returns
+        -------
+        pd.DataFrame
+            The invalid rows recorded for `column`.
         """
         return self.invalid.get(column, pd.DataFrame())
 

@@ -16,6 +16,11 @@ class CostCalculator:
             DataFrame with fabrications and their components. Must contain the columns:
             - componente
             - coste_componente_unitario
+            
+        Returns
+        -------
+        CostCalculator
+            The initialized cost calculator.
         """
         self.fabricaciones = fabricaciones.copy()
         
@@ -96,7 +101,7 @@ class CostCalculator:
     
     def _calculate_product_cost(self, producto: pd.Series) -> None:
         """
-        Calculates the cost of a specific product and updates related records.
+        Calculates the cost of a specific product and updates related records (private method).
         
         Parameters
         ----------
@@ -129,7 +134,7 @@ class CostCalculator:
     
     def _print_concise_summary(self) -> None:
         """
-        Prints a summary of the final cost calculation status.
+        Prints a summary of the final cost calculation status (private method).
         """
         nulos_final = self.fabricaciones['coste_componente_unitario'].isna().sum()
         print("\nResumen final:")

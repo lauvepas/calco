@@ -24,6 +24,11 @@ class DatasetParams:
         viz_group_column: Column for grouping in visualizations (optional)
         viz_title: Title for the visualization (optional)
         viz_y_label: Y-axis label for the visualization (optional)
+
+    Returns
+    -------
+    DatasetParams
+        The parameters for the dataset.
     """
     # Cleaning and validation parameters
     cols_to_keep: List[str]
