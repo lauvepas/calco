@@ -48,8 +48,8 @@ TABLE OF CONTENTS
 -------------------------------------------------------------------------------
 ```bash
 # Clone & enter the repo
-git clone https://github.com/your‑org/calculadora_margen.git
-cd calculadora_margen
+git clone https://github.com/lauvepas/calco.git
+cd calco
 
 # Create virtual environment (recommended)
 python -m venv .venv
