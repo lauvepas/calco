@@ -1,5 +1,5 @@
 
-CALCULADORA MARGEN
+CALCULADORA COSTES
 ==================
 
 A modular **Python 3.10+** package that cleans, validates and analyses manufacturing

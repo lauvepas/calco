@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Dict
 from datetime import datetime
-from calculadora_margen.config.parameters import DatasetParams
+from calculadora_costes.config.parameters import DatasetParams
 
 class OutliersManager:
     """
